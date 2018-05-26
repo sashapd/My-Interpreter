@@ -55,6 +55,7 @@ class ASTBlock(ASTNode):
                 elif token.type == TokenType.IF:
                     self._nodes.append(ASTIf(tokens[i+2:closing_parenth_index], tokens[closing_parenth_index+2: closing_brace_index]))
                 i = closing_brace_index
+                statement_beginning = closing_brace_index + 1
             i += 1
 
     def validate(self):
@@ -63,7 +64,6 @@ class ASTBlock(ASTNode):
 
     def eval(self, memory, functions):
         for node in self._nodes:
-            print(node)
             node.eval(memory, functions)
 
 class ASTWhile(ASTNode):

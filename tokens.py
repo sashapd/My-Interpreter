@@ -30,8 +30,7 @@ class Token:
         return ' {} '.format(str(self.value))
 
 def tokens(chars):
-    for value in token_values(chars):
-        yield Token(value)
+    return [Token(value) for value in token_values(chars) ]
 
 def token_values(chars):
     return re.findall(r'(\w+|".*"|==|<=|>=|[^\s])', chars)

@@ -1,17 +1,8 @@
-import tokens
-import parser
-
+import interpreter
 
 def main():
     code = open('program.dix', 'r').read()
-    token_list = list(tokens.tokens(code))
-    ast_tree = parser.buildAST(token_list)
-
-    memory = {}
-    functions = {'print': print}
-    token_list = ast_tree.eval(memory, functions)
-
-    print(memory)
+    interpreter.interpret(code)
 
 
 if __name__ == '__main__':
