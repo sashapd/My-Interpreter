@@ -42,6 +42,10 @@ class TestAST(unittest.TestCase):
         n = ASTExpression(tokns)
         self.assertEqual(n.eval({}, []), True)
 
+        tokns = list(tokens('2 >= 2'))
+        n = ASTExpression(tokns)
+        self.assertEqual(n.eval({}, []), True)
+
 
 
 

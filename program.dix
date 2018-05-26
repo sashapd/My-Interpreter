@@ -7,15 +7,29 @@ str gello = "gello world yo";
 num zero = 0;
 num exp = 2;
 
+num sukaBlyat = exp + 8;
 
-while(zero / 5 < 5) {
+if(zero == 0) {
+    print(33);
+}
+
+while(zero <= 5) {
     zero = zero + 1;
     exp = exp * 2;
     num suk = 3;
+
+
+
+    print(zero);
 }
 
 
 if(a == 88) {
+
+    if(a == 3) {
+
+        a = 5;
+    }
     num g = 33;
     str danya = "hello";
     num www = 3;

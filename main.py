@@ -8,7 +8,7 @@ def main():
     ast_tree = parser.buildAST(token_list)
 
     memory = {}
-    functions = []
+    functions = {'print': print}
     token_list = ast_tree.eval(memory, functions)
 
     print(memory)

@@ -15,6 +15,9 @@ class ASTNode(ABC):
     def eval(self, memory, functions):
         pass
 
+    def __repr__(self):
+        return ''.join(map(str, self._tokens))
+
 class ASTBlock(ASTNode):
     def __init__(self, tokens):
         super().__init__(tokens)
@@ -60,6 +63,7 @@ class ASTBlock(ASTNode):
 
     def eval(self, memory, functions):
         for node in self._nodes:
+            print(node)
             node.eval(memory, functions)
 
 class ASTWhile(ASTNode):
@@ -123,7 +127,8 @@ class ASTExpression(ASTNode):
             TokenType.ADDITION: self._op_addition,
             TokenType.SUBTRACTION: self._op_subtraction,
             TokenType.MULTIPLICATION: self._op_multiplication,
-            TokenType.DIVISION: self._op_division
+            TokenType.DIVISION: self._op_division,
+            TokenType.PARENTHESES: self._op_func_call
         }
         self._left = None
         self._right = None
@@ -132,7 +137,7 @@ class ASTExpression(ASTNode):
         self._build()
 
     def _build_operand(self, tokens):
-        if len(tokens) > 1:
+        if len(tokens) > 2 and not (tokens[1].value == '(' and tokens[-1].value == ')'):
             return ASTExpression(tokens)
         else:
             if self._operator_type == TokenType.ASSIGNMENT and self._left is None:
@@ -160,11 +165,17 @@ class ASTExpression(ASTNode):
                 self._left = self._build_operand(self._tokens[:pos])
                 self._right = self._build_operand(self._tokens[pos + 1:])
                 return
+        if TokenType.PARENTHESES in operator_positions and self._tokens[1].value == '(' and self._tokens[-1].value == ')':
+            self._operator_type = TokenType.PARENTHESES
+            self._left = self._build_operand(self._tokens)
+
+
 
     def validate(self):
         return True
 
     def eval(self, memory, functions):
+        """
         # Declaration
         if len(self._tokens) == 2:
             if self._tokens[1] not in memory:
@@ -173,6 +184,9 @@ class ASTExpression(ASTNode):
                 elif self._tokens[0].value == 'str':
                     memory[self._tokens[1].value] = ''
             return self._tokens[1].value
+        """
+        if self._operator_type is None:
+            print(32)
         return self._operator_functions[self._operator_type](memory, functions)
 
     def _op_assignment(self, memory, functions):
@@ -187,6 +201,10 @@ class ASTExpression(ASTNode):
             return self._left.eval(memory, functions) > self._right.eval(memory, functions)
         elif self._operator.value == '<':
             return self._left.eval(memory, functions) < self._right.eval(memory, functions)
+        elif self._operator.value == '<=':
+            return self._left.eval(memory, functions) <= self._right.eval(memory, functions)
+        elif self._operator.value == '>=':
+            return self._left.eval(memory, functions) >= self._right.eval(memory, functions)
 
     def _op_addition(self, memory, functions):
         return self._left.eval(memory, functions) + self._right.eval(memory, functions)
@@ -200,11 +218,27 @@ class ASTExpression(ASTNode):
     def _op_division(self, memory, functions):
         return self._left.eval(memory, functions) / self._right.eval(memory, functions)
 
+    def _op_func_call(self, memory, functions):
+        return self._left.eval(memory, functions)
+
 class ASTValue(ASTNode):
     def __init__(self, tokens):
         super().__init__(tokens)
-        assert(len(tokens) == 1)
+        assert(len(tokens) == 1 or (tokens[1].value == '(' and tokens[-1].value == ')'))
         self.val = tokens[0]
+        self.args = []
+        self._build()
+
+    def _build(self):
+        if len(self._tokens) > 1:
+            tokens_start = 2
+            for i in range(2, len(self._tokens)):
+                if self._tokens[i].type == TokenType.COMMA or i == len(self._tokens) - 1:
+                    if i - tokens_start > 1:
+                        self.args.append(ASTExpression(self._tokens[tokens_start:i]))
+                    else:
+                        self.args.append(ASTValue(self._tokens[tokens_start:i]))
+                    tokens_start = i + 1
 
     def eval(self, memory, functions):
         if self.val.type == TokenType.NUMBER:
@@ -212,7 +246,11 @@ class ASTValue(ASTNode):
         elif self.val.type == TokenType.STRING:
             return str(self.val.value[1:-1])
         elif self.val.type == TokenType.NAME:
-            return memory[self.val.value]
+            if len(self._tokens) == 1:
+                return memory[self.val.value]
+            else:
+                return functions[self._tokens[0].value](*(arg.eval(memory, functions) for arg in self.args))
+
 
     def validate(self):
         return True
@@ -220,8 +258,8 @@ class ASTValue(ASTNode):
 class ASTLValue(ASTNode):
     def __init__(self, tokens):
         super().__init__(tokens)
-        assert(len(tokens) == 1)
-        self.val = tokens[0]
+        assert(len(tokens) <= 2)
+        self.val = tokens[-1]
 
     def eval(self, memory, functions):
         return self.val.value

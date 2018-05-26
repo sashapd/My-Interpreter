@@ -24,7 +24,7 @@ class Token:
         self.type = token_type(value)
 
     def __str__(self):
-        return '( {} )'.format(str(self.value))
+        return ' {} '.format(str(self.value))
 
     def __repr__(self):
         return ' {} '.format(str(self.value))
@@ -34,7 +34,7 @@ def tokens(chars):
         yield Token(value)
 
 def token_values(chars):
-    return re.findall(r'(\w+|".*"|==|[^\s])', chars)
+    return re.findall(r'(\w+|".*"|==|<=|>=|[^\s])', chars)
 
 def token_type(token):
     types = {
@@ -46,7 +46,7 @@ def token_type(token):
              r',': TokenType.COMMA,
              r'\{|\}': TokenType.BRACKET,
              r'\(|\)': TokenType.PARENTHESES,
-             r'==|<|>': TokenType.COMPARISON,
+             r'==|<|>|<=|>=': TokenType.COMPARISON,
              r'\=': TokenType.ASSIGNMENT,
              r'\+': TokenType.ADDITION,
              r'\-': TokenType.SUBTRACTION,
