@@ -1,0 +1,23 @@
+num a = 55 + 33;
+num eee = 33 / 344;
+
+num t = 2 + 2 * 2;
+str gello = "gello world yo";
+
+num zero = 0;
+num exp = 2;
+
+
+while(zero / 5 < 5) {
+    zero = zero + 1;
+    exp = exp * 2;
+    num suk = 3;
+}
+
+
+if(a == 88) {
+    num g = 33;
+    str danya = "hello";
+    num www = 3;
+}
+
